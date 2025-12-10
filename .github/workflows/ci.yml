@@ -1,0 +1,23 @@
+name: CI DevOps Chat
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - run: cd backend && npm install && node server.js &
+      - run: sleep 2
+      - run: curl -X GET http://localhost:3000/api/messages
+
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: docker build ./frontend
