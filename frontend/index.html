@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Mini Chat DevOps</title>
+  <style>
+    body{font-family:Arial;margin:0;padding:20px;background:#f2f2f2}
+    .box{max-width:600px;margin:auto;background:#fff;padding:15px;border-radius:8px}
+    #messages{border:1px solid #ccc;height:300px;overflow:auto;padding:10px;margin:10px 0}
+    .msg{background:#e9e9e9;margin:4px 0;padding:6px;border-radius:4px}
+    input,button{padding:8px;margin:4px 0;width:100%}
+  </style>
+</head>
+<body>
+<div class="box">
+  <h2>Mini Chat DevOps</h2>
+  <input id="author" type="text" placeholder="Votre pseudo">
+  <div id="messages"></div>
+  <input id="content" type="text" placeholder="Votre message">
+  <button onclick="sendMsg()">Envoyer</button>
+  <button onclick="load()">Actualiser</button>
+</div>
+
+<script>
+const API="http://localhost:3000/api/messages";
+
+async function load(){
+  const r = await fetch(API);
+  const data = await r.json();
+  document.getElementById("messages").innerHTML =
+    data.map(m=>`<div class='msg'><b>${m.author}</b> (${m.time})<br>${m.content}</div>`).join("");
+}
+
+setInterval(load,4000);
+load();
+
+async function sendMsg(){
+  const author=document.getElementById("author").value.trim();
+  const content=document.getElementById("content").value.trim();
+  if(!author||!content) return;
+  await fetch(API,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({author,content})
+  });
+  document.getElementById("content").value="";
+  load();
+}
+</script>
+</body>
+</html>
